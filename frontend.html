@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Utility Tool</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top left, #e0f2fe, #ffffff 70%); /* More dynamic background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+            color: #263238; /* Darker text for better contrast */
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 1.75rem; /* Even more rounded corners */
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18); /* Stronger, more diffused shadow */
+            padding: 3.5rem; /* Increased padding */
+            width: 100%;
+            max-width: 1000px; /* Slightly wider for spacious feel */
+            box-sizing: border-box;
+            border: 1px solid #e0e0e0; /* Softer border */
+            overflow: hidden; /* Ensures shadows/borders don't bleed */
+        }
+        h1 {
+            font-size: 2.8rem; /* Even larger heading */
+            font-weight: 900; /* Black font weight */
+            color: #1a237e; /* Deep blue heading */
+            margin-bottom: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.08); /* More pronounced shadow */
+            letter-spacing: -0.03em; /* Tighter letter spacing for impact */
+        }
+        h2 {
+            font-size: 2rem; /* Larger sub-headings */
+            font-weight: 800; /* Extra bold */
+            color: #283593; /* Slightly lighter deep blue */
+            margin-bottom: 1.75rem;
+            border-bottom: 3px solid #e8eaf6; /* Thicker underline effect */
+            padding-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+        h3 {
+            font-size: 1.35rem; /* Medium sub-headings */
+            font-weight: 700;
+            color: #3f51b5; /* Medium blue */
+            margin-bottom: 1.25rem;
+        }
+        .input-group label {
+            font-weight: 600;
+            color: #455a64; /* Darker gray for labels */
+            margin-bottom: 0.6rem;
+            display: block;
+        }
+        .input-group input[type="file"] {
+            display: none;
+        }
+        .custom-file-upload {
+            border: 3px dashed #90caf9; /* Soft blue dashed border */
+            border-radius: 1rem; /* More rounded */
+            padding: 2rem; /* More padding */
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            background-color: #f8fbff; /* Very light blue-white */
+            color: #42a5f5; /* Medium blue text */
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.08); /* Stronger inner shadow */
+        }
+        .custom-file-upload:hover {
+            border-color: #2196f3; /* Brighter blue on hover */
+            background-color: #e3f2fd; /* Lighter blue background */
+            color: #1976d2; /* Darker blue text */
+            box-shadow: 0 0 20px rgba(33, 150, 243, 0.4); /* More prominent glow */
+            transform: translateY(-2px); /* Subtle lift */
+        }
+        .custom-file-upload .icon {
+            font-size: 3.5rem; /* Even larger icon */
+            margin-bottom: 1rem;
+            color: #2196f3; /* Bright blue icon */
+        }
+        .file-name {
+            margin-top: 1.25rem; /* More spacing */
+            font-size: 1rem; /* Slightly larger font */
+            color: #455a64;
+            word-break: break-all;
+            font-weight: 500;
+        }
+        .btn {
+            padding: 0.8rem 1.6rem; /* Adjusted padding */
+            border-radius: 0.7rem; /* Slightly more rounded */
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.95rem; /* Slightly larger font */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Default button shadow */
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #2196f3, #1976d2); /* More vibrant blue gradient */
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.35); /* Stronger, diffused shadow */
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #1976d2, #2196f3); /* Reverse gradient on hover */
+            transform: translateY(-3px) scale(1.03); /* More pronounced lift and enlarge */
+            box-shadow: 0 12px 25px rgba(33, 150, 243, 0.5);
+        }
+        .btn-secondary {
+            background-color: #e3f2fd; /* Lighter blue secondary */
+            color: #42a5f5; /* Blue text */
+            border: 1px solid #90caf9; /* Soft blue border */
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08); /* Softer shadow */
+        }
+        .btn-secondary:hover {
+            background-color: #bbdefb; /* Darker blue on hover */
+            color: #1976d2;
+            transform: translateY(-1.5px); /* More pronounced lift */
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.12);
+        }
+        .select-wrapper {
+            position: relative;
+        }
+        .select-wrapper select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-color: #f8fbff;
+            border: 1px solid #90caf9; /* Soft blue border */
+            border-radius: 0.75rem;
+            padding: 0.8rem 1rem; /* Adjusted padding */
+            padding-right: 3rem; /* More space for custom arrow */
+            width: 100%;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #263238;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .select-wrapper select:focus {
+            outline: none;
+            border-color: #2196f3;
+            box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.3);
+        }
+        .select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: #64b5f6; /* Medium blue arrow */
+            font-size: 0.85rem;
+        }
+        input[type="text"], input[type="number"] {
+            padding: 0.8rem 1rem; /* Adjusted padding */
+            border: 1px solid #90caf9; /* Soft blue border */
+            border-radius: 0.75rem;
+            width: 100%;
+            font-size: 1rem;
+            color: #263238;
+            background-color: #f8fbff;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #2196f3;
+            box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.3);
+        }
+        .message-box {
+            background-color: #e3f2fd; /* Light blue */
+            color: #1a237e; /* Deep blue */
+            border: 1px solid #90caf9; /* Medium blue */
+            border-radius: 0.85rem; /* More rounded */
+            padding: 1.5rem; /* More padding */
+            margin-top: 1.75rem;
+            margin-bottom: 2.5rem; /* More spacing */
+            display: none;
+            font-weight: 500;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        .message-box.show {
+            display: block;
+        }
+        /* Specific styles for message types */
+        .message-box.bg-red-100 { background-color: #ffebee; border-color: #ef9a9a; color: #c62828; } /* Lighter red */
+        .message-box.bg-green-100 { background-color: #e8f5e9; border-color: #a5d6a7; color: #2e7d32; } /* Lighter green */
+
+        /* Section styling */
+        .section-card {
+            background-color: #ffffff; /* Pure white for section cards */
+            border-radius: 1.5rem; /* Consistent rounding */
+            padding: 2.75rem; /* Adjusted padding */
+            margin-bottom: 2.5rem; /* Consistent spacing */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08); /* Softer, larger shadow */
+            border: 1px solid #f0f0f0; /* Very light border */
+            border-left: 8px solid; /* Accent border */
+            border-image: linear-gradient(to bottom, #42a5f5, #1976d2) 1; /* Blue gradient border */
+        }
+        .section-card:last-child {
+            margin-bottom: 0;
+        }
+        /* Flex/Grid adjustments for responsiveness */
+        .input-and-button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem; /* More space */
+            align-items: flex-end;
+        }
+        @media (min-width: 768px) {
+            .input-and-button-group {
+                flex-direction: row;
+                align-items: flex-end;
+            }
+            .input-and-button-group > div {
+                flex: 1;
+            }
+            .input-and-button-group > button {
+                flex-shrink: 0;
+                width: auto;
+            }
+            .grid-cols-2-md {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .grid-cols-3-md {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .grid-cols-4-md {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        /* Specific grid for image editing buttons to ensure wrapping */
+        .image-edit-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); /* Adjusted minmax for slightly larger buttons */
+            gap: 1rem; /* More space between buttons */
+        }
+        @media (min-width: 768px) {
+            .image-edit-buttons-grid {
+                grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); /* Adjust minmax for larger screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h6 class="text-center">ShrinkIT!</h6><br>
+
+        <!-- File Upload Section -->
+        <div class="section-card">
+            <label for="file-input" class="block text-xl font-semibold text-gray-700 mb-4">Select a File</label>
+            <div class="input-group">
+                <label for="file-input" class="custom-file-upload">
+                    <div class="icon">📁</div>
+                    <span id="upload-text">Drag & drop a file here, or click to browse</span>
+                </label>
+                <input type="file" id="file-input" multiple>
+                <div id="selected-files" class="file-name mt-2 text-gray-600">No file chosen</div>
+            </div>
+        </div>
+
+        <!-- Message Box (Moved Here) -->
+        <div id="message-box" class="message-box"></div>
+
+        <!-- Basic File Operations Section (Moved Up) -->
+        <div class="section-card">
+            <h2 class="sr-only">Basic File Operations</h2> <!-- Visually hidden heading -->
+            <div class="flex flex-wrap gap-4">
+                <button id="download-op-btn" class="btn btn-secondary flex-1 min-w-[120px]">Download</button>
+                <button id="delete-op-btn" class="btn btn-secondary flex-1 min-w-[120px]">Delete</button>
+            </div>
+        </div>
+
+        <!-- File Compression/Size Reduction Section -->
+        <div class="section-card">
+            <h2>1. Compress & Reduce Size</h2>
+            <div class="input-and-button-group mb-4">
+                <div class="flex-1 w-full">
+                    <label for="desired-size" class="block text-sm font-medium text-gray-700 mb-2">Desired Size (e.g., 500KB, 2MB, 50%) - Optional for Automatic</label>
+                    <input type="text" id="desired-size" placeholder="e.g., 1MB or 75% (leave blank for automatic)" class="p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <button id="compress-btn" class="btn btn-primary w-full md:w-auto">
+                    Compress File
+                </button>
+            </div>
+        </div>
+
+        <!-- File Type Conversion Section -->
+        <div class="section-card">
+            <h2>2. Convert File Type</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div class="select-wrapper">
+                    <label for="input-type" class="block text-sm font-medium text-gray-700 mb-2">Input Type (Auto-detected)</label>
+                    <select id="input-type" disabled class="bg-gray-200 cursor-not-allowed">
+                        <option value="">Auto-detected</option>
+                    </select>
+                </div>
+                <div class="select-wrapper">
+                    <label for="output-type" class="block text-sm font-medium text-gray-700 mb-2">Output Type</label>
+                    <select id="output-type">
+                        <option value="">Select Output Type</option>
+                        <option value="pdf">PDF</option>
+                        <option value="jpg">JPG</option>
+                        <option value="png">PNG</option>
+                        <option value="webp">WEBP</option>
+                        <option value="txt">TXT</option>
+                        <option value="csv">CSV</option>
+                        <option value="xlsx">XLSX</option>
+                        <!-- Add more types as needed -->
+                    </select>
+                </div>
+            </div>
+            <button id="convert-btn" class="btn btn-primary w-full md:w-auto">
+                Convert File
+            </button>
+        </div>
+
+        <!-- Image Editing Section -->
+        <div class="section-card">
+            <h2>3. Image Editing</h2>
+
+            <!-- Resize -->
+            <div class="mb-6">
+                <h3>Resize Image</h3>
+                <div class="flex flex-col md:flex-row gap-4 mb-3">
+                    <div class="flex-1">
+                        <label for="resize-width" class="block text-sm font-medium text-gray-700 mb-1">Width (px)</label>
+                        <input type="number" id="resize-width" placeholder="e.g., 800" class="p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="flex-1">
+                        <label for="resize-height" class="block text-sm font-medium text-gray-700 mb-1">Height (px)</label>
+                        <input type="number" id="resize-height" placeholder="e.g., 600" class="p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <button id="resize-btn" class="btn btn-primary w-full md:w-auto">Resize</button>
+            </div>
+
+            <!-- Crop -->
+            <div class="mb-6">
+                <h3>Crop Image (Left, Top, Right, Bottom)</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
+                    <div>
+                        <label for="crop-left" class="block text-sm font-medium text-gray-700 mb-1">Left (px)</label>
+                        <input type="number" id="crop-left" placeholder="0" class="p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="crop-top" class="block text-sm font-medium text-gray-700 mb-1">Top (px)</label>
+                        <input type="number" id="crop-top" placeholder="0" class="p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="crop-right" class="block text-sm font-medium text-gray-700 mb-1">Right (px)</label>
+                        <input type="number" id="crop-right" placeholder="e.g., 800" class="p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="crop-bottom" class="block text-sm font-medium text-gray-700 mb-1">Bottom (px)</label>
+                        <input type="number" id="crop-bottom" placeholder="e.g., 600" class="p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                <button id="crop-btn" class="btn btn-primary w-full md:w-auto">Crop</button>
+            </div>
+
+            <!-- Rotate & Flip -->
+            <div class="mb-6">
+                <h3>Rotate & Flip Image</h3>
+                <!-- Input and its button -->
+                <div class="input-and-button-group mb-4">
+                    <div class="flex-1 w-full">
+                        <label for="rotate-degrees" class="block text-sm font-medium text-gray-700 mb-1">Rotate Degrees (e.g., 90, 180, -45)</label>
+                        <input type="number" id="rotate-degrees" placeholder="e.g., 90, 180, -45" class="p-3 border border-gray-300 rounded-md w-full focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <button id="rotate-btn" class="btn btn-primary w-full md:w-auto">Rotate</button>
+                </div>
+                <!-- Separate grid for the rest of the buttons -->
+                <div class="image-edit-buttons-grid">
+                    <button id="rotate-left-btn" class="btn btn-secondary w-full">Rotate Left (90°)</button>
+                    <button id="rotate-right-btn" class="btn btn-secondary w-full">Rotate Right (90°)</button>
+                    <button id="flip-horizontal-btn" class="btn btn-secondary w-full">Flip Horizontal</button>
+                    <button id="flip-vertical-btn" class="btn btn-secondary w-full">Flip Vertical</button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div>
+                <h3>Apply Filters</h3>
+                <div class="image-edit-buttons-grid">
+                    <button id="grayscale-btn" class="btn btn-secondary">Grayscale</button>
+                    <button id="sepia-btn" class="btn btn-secondary">Sepia</button>
+                    <button id="blur-btn" class="btn btn-secondary">Blur</button>
+                    <button id="sharpen-btn" class="btn btn-secondary">Sharpen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const selectedFilesDiv = document.getElementById('selected-files');
+        const uploadTextSpan = document.getElementById('upload-text');
+        const inputTypeSelect = document.getElementById('input-type');
+        const outputTypeSelect = document.getElementById('output-type');
+        const desiredSizeInput = document.getElementById('desired-size');
+        const compressBtn = document.getElementById('compress-btn');
+        const convertBtn = document.getElementById('convert-btn');
+        const downloadOpBtn = document.getElementById('download-op-btn');
+        const deleteOpBtn = document.getElementById('delete-op-btn');
+
+        // Image Editing Elements
+        const resizeWidthInput = document.getElementById('resize-width');
+        const resizeHeightInput = document.getElementById('resize-height');
+        const resizeBtn = document.getElementById('resize-btn');
+        const cropLeftInput = document.getElementById('crop-left');
+        const cropTopInput = document.getElementById('crop-top');
+        const cropRightInput = document.getElementById('crop-right');
+        const cropBottomInput = document.getElementById('crop-bottom');
+        const cropBtn = document.getElementById('crop-btn');
+        const rotateDegreesInput = document.getElementById('rotate-degrees');
+        const rotateBtn = document.getElementById('rotate-btn');
+        const flipHorizontalBtn = document.getElementById('flip-horizontal-btn');
+        const flipVerticalBtn = document.getElementById('flip-vertical-btn');
+        const grayscaleBtn = document.getElementById('grayscale-btn');
+        const sepiaBtn = document.getElementById('sepia-btn');
+        const blurBtn = document.getElementById('blur-btn');
+        const sharpenBtn = document.getElementById('sharpen-btn');
+        const rotateLeftBtn = document.getElementById('rotate-left-btn');
+        const rotateRightBtn = document.getElementById('rotate-right-btn');
+
+
+        const messageBox = document.getElementById('message-box');
+
+        let selectedFile = null;
+        let uploadedFilename = null;
+
+        const BACKEND_URL = 'http://127.0.0.1:5000';
+
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            // Ensure the message box is visible and has the correct styling
+            messageBox.className = 'message-box show';
+            // Remove previous type classes before adding new one
+            messageBox.classList.remove('bg-red-100', 'text-red-800', 'border-red-300', 'bg-green-100', 'text-green-800', 'border-green-300', 'bg-blue-100', 'text-blue-800', 'border-blue-300');
+
+            if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'text-red-800', 'border-red-300');
+            } else if (type === 'success') {
+                messageBox.classList.add('bg-green-100', 'text-green-800', 'border-green-300');
+            } else { // info
+                messageBox.classList.add('bg-blue-100', 'text-blue-800', 'border-blue-300');
+            }
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 5000);
+        }
+
+        function getFileExtension(filename) {
+            return filename.split('.').pop().toLowerCase();
+        }
+
+        function isImageFile(filename) {
+            const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+            const ext = getFileExtension(filename);
+            return imageExtensions.includes(ext);
+        }
+
+        fileInput.addEventListener('change', (event) => {
+            if (event.target.files.length > 0) {
+                selectedFile = event.target.files[0];
+                selectedFilesDiv.textContent = `Selected: ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(2)} KB)`;
+                uploadTextSpan.textContent = 'File selected! Change or drag another.';
+                const extension = getFileExtension(selectedFile.name);
+                inputTypeSelect.innerHTML = `<option value="${extension}">${extension.toUpperCase()}</option>`;
+                inputTypeSelect.value = extension;
+                uploadFileToBackend();
+            } else {
+                selectedFile = null;
+                selectedFilesDiv.textContent = 'No file chosen';
+                uploadTextSpan.textContent = 'Drag & drop a file here, or click to browse';
+                inputTypeSelect.innerHTML = `<option value="">Auto-detected</option>`;
+                uploadedFilename = null;
+            }
+        });
+
+        const customFileUpload = document.querySelector('.custom-file-upload');
+        customFileUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            customFileUpload.classList.add('border-blue-500', 'bg-blue-50');
+        });
+
+        customFileUpload.addEventListener('dragleave', () => {
+            customFileUpload.classList.remove('border-blue-500', 'bg-blue-50');
+        });
+
+        customFileUpload.addEventListener('drop', async (e) => { // Added async here
+            e.preventDefault();
+            customFileUpload.classList.remove('border-blue-500', 'bg-blue-50');
+            if (e.dataTransfer.files.length > 0) {
+                selectedFile = e.dataTransfer.files[0]; // Directly set selectedFile from drop
+                selectedFilesDiv.textContent = `Selected: ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(2)} KB)`;
+                uploadTextSpan.textContent = 'File selected! Change or drag another.';
+                const extension = getFileExtension(selectedFile.name);
+                inputTypeSelect.innerHTML = `<option value="${extension}">${extension.toUpperCase()}</option>`;
+                inputTypeSelect.value = extension;
+
+                // Check if the file type is allowed before attempting upload
+                const allowedExtensions = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'xlsx', 'csv', 'webp']; // Updated allowed extensions
+                if (!allowedExtensions.includes(extension)) {
+                    showMessage(`File type .${extension} is not supported. Please upload a supported file type.`, 'error');
+                    selectedFile = null; // Clear selected file if not supported
+                    selectedFilesDiv.textContent = 'No file chosen';
+                    uploadTextSpan.textContent = 'Drag & drop a file here, or click to browse';
+                    inputTypeSelect.innerHTML = `<option value="">Auto-detected</option>`;
+                    return; // Stop further processing
+                }
+
+                await uploadFileToBackend(); // Await the upload
+            } else {
+                selectedFile = null;
+                selectedFilesDiv.textContent = 'No file chosen';
+                uploadTextSpan.textContent = 'Drag & drop a file here, or click to browse';
+                inputTypeSelect.innerHTML = `<option value="">Auto-detected</option>`;
+                uploadedFilename = null;
+            }
+        });
+
+        async function uploadFileToBackend() {
+            if (!selectedFile) {
+                showMessage('No file selected for upload.', 'error');
+                return null;
+            }
+            showMessage(`Uploading "${selectedFile.name}"...`, 'info');
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            try {
+                const response = await fetch(`${BACKEND_URL}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage(data.message, 'success');
+                    uploadedFilename = data.filename;
+                    return data.filename;
+                } else {
+                    showMessage(`Upload failed: ${data.message}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                showMessage(`Network error during upload: ${error.message}`, 'error');
+            }
+            return null; // Ensure a return value for all paths
+        }
+
+        async function compressFileInBackend() {
+            if (!uploadedFilename) {
+                showMessage('Please select a file and allow it to upload automatically first.', 'error');
+                return;
+            }
+            const desiredSize = desiredSizeInput.value.trim();
+            showMessage(`Compressing "${uploadedFilename}"...`, 'info');
+            try {
+                const payload = { filename: uploadedFilename };
+                if (desiredSize) {
+                    payload.desired_size = desiredSize;
+                }
+                const response = await fetch(`${BACKEND_URL}/compress`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage(data.message, 'success');
+                    uploadedFilename = data.processed_filename;
+                    selectedFilesDiv.textContent = `Processed: ${uploadedFilename}`;
+                } else {
+                    showMessage(`Compression failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Network error during compression: ${error.message}`, 'error');
+            }
+        }
+
+        async function convertFileInBackend() {
+            if (!uploadedFilename) {
+                showMessage('Please select a file and allow it to upload automatically first.', 'error');
+                return;
+            }
+            const outputType = outputTypeSelect.value;
+            if (!outputType) {
+                showMessage('Please select an output file type for conversion.', 'error');
+                return;
+            }
+            showMessage(`Converting "${uploadedFilename}" to ${outputType.toUpperCase()}...`, 'info');
+            try {
+                const response = await fetch(`${BACKEND_URL}/convert`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        filename: uploadedFilename,
+                        output_type: outputType
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage(data.message, 'success');
+                    uploadedFilename = data.processed_filename;
+                    selectedFilesDiv.textContent = `Processed: ${uploadedFilename}`;
+                } else {
+                    showMessage(`Conversion failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Network error during conversion: ${error.message}`, 'error');
+            }
+        }
+
+        async function processImageOperation(endpoint, payload, operationName) {
+            if (!uploadedFilename) {
+                showMessage('Please select a file and allow it to upload automatically first.', 'error');
+                return;
+            }
+            if (!isImageFile(uploadedFilename)) {
+                showMessage('The selected file is not an image. Please upload an image to use image editing features.', 'error');
+                return;
+            }
+            showMessage(`${operationName} "${uploadedFilename}"...`, 'info');
+            try {
+                const response = await fetch(`${BACKEND_URL}/${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ filename: uploadedFilename, ...payload })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage(data.message, 'success');
+                    uploadedFilename = data.processed_filename;
+                    selectedFilesDiv.textContent = `Processed: ${uploadedFilename}`;
+                } else {
+                    showMessage(`${operationName} failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Network error during ${operationName.toLowerCase()}: ${error.message}`, 'error');
+            }
+        }
+
+        resizeBtn.addEventListener('click', async () => {
+            const width = parseInt(resizeWidthInput.value);
+            const height = parseInt(resizeHeightInput.value);
+            if (isNaN(width) || isNaN(height) || width <= 0 || height <= 0) {
+                showMessage('Please enter valid positive numbers for width and height.', 'error');
+                return;
+            }
+            await processImageOperation('image_resize', { width, height }, 'Resizing');
+        });
+
+        cropBtn.addEventListener('click', async () => {
+            const left = parseInt(cropLeftInput.value);
+            const top = parseInt(cropTopInput.value);
+            const right = parseInt(cropRightInput.value);
+            const bottom = parseInt(cropBottomInput.value);
+            if (isNaN(left) || isNaN(top) || isNaN(right) || isNaN(bottom) ||
+                left < 0 || top < 0 || right < 0 || bottom < 0 ||
+                left >= right || top >= bottom) {
+                showMessage('Please enter valid crop coordinates (non-negative integers, right > left, bottom > top).', 'error');
+                return;
+            }
+            await processImageOperation('image_crop', { left, top, right, bottom }, 'Cropping');
+        });
+
+        rotateBtn.addEventListener('click', async () => {
+            const degrees = parseFloat(rotateDegreesInput.value);
+            if (isNaN(degrees)) {
+                showMessage('Please enter a valid number for degrees.', 'error');
+                return;
+            }
+            await processImageOperation('image_rotate', { degrees }, 'Rotating');
+        });
+
+        rotateLeftBtn.addEventListener('click', async () => {
+            await processImageOperation('image_rotate', { degrees: -90 }, 'Rotating Left (90°)');
+        });
+
+        rotateRightBtn.addEventListener('click', async () => {
+            await processImageOperation('image_rotate', { degrees: 90 }, 'Rotating Right (90°)');
+        });
+
+        flipHorizontalBtn.addEventListener('click', async () => {
+            await processImageOperation('image_flip', { direction: 'horizontal' }, 'Flipping Horizontal');
+        });
+
+        flipVerticalBtn.addEventListener('click', async () => {
+            await processImageOperation('image_flip', { direction: 'vertical' }, 'Flipping Vertical');
+        });
+
+        grayscaleBtn.addEventListener('click', async () => {
+            await processImageOperation('image_grayscale', {}, 'Applying Grayscale');
+        });
+
+        sepiaBtn.addEventListener('click', async () => {
+            await processImageOperation('image_sepia', {}, 'Applying Sepia');
+        });
+
+        blurBtn.addEventListener('click', async () => {
+            await processImageOperation('image_blur', {}, 'Applying Blur');
+        });
+
+        sharpenBtn.addEventListener('click', async () => {
+            await processImageOperation('image_sharpen', {}, 'Applying Sharpen');
+        });
+
+        async function downloadFileFromBackend() {
+            if (!uploadedFilename) {
+                showMessage('No file has been processed or uploaded to download.', 'error');
+                return;
+            }
+            showMessage(`Downloading "${uploadedFilename}"...`, 'info');
+            try {
+                const response = await fetch(`${BACKEND_URL}/download/${uploadedFilename}`, {
+                    method: 'GET'
+                });
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = uploadedFilename;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                    showMessage(`"${uploadedFilename}" downloaded successfully!`, 'success');
+                } else {
+                    const errorData = await response.json();
+                    showMessage(`Download failed: ${errorData.message}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Network error during download: ${error.message}`, 'error');
+            }
+        }
+
+        async function deleteFileFromBackend() {
+            if (!uploadedFilename) {
+                showMessage('No file has been uploaded to delete from the server.', 'error');
+                return;
+            }
+            showMessage(`Deleting "${uploadedFilename}" from server...`, 'info');
+            try {
+                const response = await fetch(`${BACKEND_URL}/delete`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        filename: uploadedFilename
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage(data.message, 'success');
+                    selectedFile = null;
+                    uploadedFilename = null;
+                    selectedFilesDiv.textContent = 'No file chosen';
+                    uploadTextSpan.textContent = 'Drag & drop a file here, or click to browse';
+                    inputTypeSelect.innerHTML = `<option value="">Auto-detected</option>`;
+                    fileInput.value = '';
+                } else {
+                    showMessage(`Deletion failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                showMessage(`Network error during deletion: ${error.message}`, 'error');
+            }
+        }
+
+        compressBtn.addEventListener('click', async () => {
+            if (!uploadedFilename) {
+                showMessage('Please select a file and allow it to upload automatically first.', 'error');
+                return;
+            }
+            await compressFileInBackend();
+        });
+
+        convertBtn.addEventListener('click', async () => {
+            if (!uploadedFilename) {
+                showMessage('Please select a file and allow it to upload automatically first.', 'error');
+                return;
+            }
+            await convertFileInBackend();
+        });
+
+        downloadOpBtn.addEventListener('click', async () => {
+            await downloadFileFromBackend();
+        });
+
+        deleteOpBtn.addEventListener('click', async () => {
+            await deleteFileFromBackend();
+        });
+    </script>
+</body>
+</html>
